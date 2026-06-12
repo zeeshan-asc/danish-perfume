@@ -10,7 +10,10 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const handleLogout = async () => { await logout(); router.push("/login"); };
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
 
   const navLinks = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -18,60 +21,147 @@ export default function Navbar() {
   ];
 
   return (
-    <nav style={{
-      position: "sticky", top: 0, zIndex: 40,
-      background: "rgba(11,11,16,0.85)",
-      borderBottom: "1px solid rgba(255,255,255,0.06)",
-      backdropFilter: "blur(12px)",
-    }}>
-      <div style={{ width: "90%", maxWidth: 1400, margin: "0 auto", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-            <div style={{ width: 26, height: 26, borderRadius: 6, background: "rgba(20,184,166,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Spray size={14} style={{ color: "#14b8a6" }} />
-            </div>
-            <span style={{ fontSize: 14, fontWeight: 500, color: "#f0f0f4", letterSpacing: "0.02em", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>
-              Fragrance Vault
-            </span>
-          </Link>
-          <div style={{ display: "flex", gap: 2 }}>
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const active = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 6,
-                    padding: "6px 14px", borderRadius: 6, fontSize: 13,
-                    fontFamily: "DM Sans, system-ui, -apple-system, sans-serif",
-                    textDecoration: "none", fontWeight: 500,
-                    background: active ? "rgba(20,184,166,0.08)" : "transparent",
-                    color: active ? "#2dd4bf" : "#a0a0b4",
-                    transition: "all 0.15s ease",
-                  }}
-                >
-                  <Icon size={14} />
-                  {link.label}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 13, color: "#a0a0b4", fontWeight: 500 }}>{user?.username}</span>
-          <button onClick={handleLogout}
+    <nav
+      style={{
+        position: "sticky",
+        top: 10,
+        zIndex: 40,
+        margin: "10px auto 0",
+        width: "90%",
+        maxWidth: 1400,
+        background: "var(--bg-glass)",
+        backdropFilter: "blur(16px) saturate(140%)",
+        WebkitBackdropFilter: "blur(16px) saturate(140%)",
+        border: "1px solid rgba(200,164,78,0.10)",
+        borderRadius: "var(--radius-xl)",
+        boxShadow: "var(--shadow-md), 0 0 30px rgba(200,164,78,0.04)",
+        height: 54,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 20px",
+      }}
+    >
+      {/* Left: Logo + Nav Links */}
+      <div style={{ display: "flex", alignItems: "center", gap: 36 }}>
+        {/* Brand Logo */}
+        <Link
+          href="/"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 9,
+            textDecoration: "none",
+            transition: "opacity var(--duration-fast) var(--ease-out)",
+          }}
+        >
+          <div
             style={{
-              display: "flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 6,
-              border: "1px solid rgba(255,255,255,0.06)", background: "transparent",
-              fontSize: 12, color: "#6b6b80", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif",
-              cursor: "pointer", transition: "all 0.15s ease", fontWeight: 500,
-            }}>
-            <LogOut size={12} /> Exit
-          </button>
+              width: 30,
+              height: 30,
+              borderRadius: "var(--radius-md)",
+              background: "var(--accent-subtle)",
+              border: "1px solid var(--accent-border)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <Spray size={15} style={{ color: "var(--accent-primary)" }} />
+          </div>
+          <span
+            style={{
+              fontSize: 15,
+              fontWeight: 600,
+              color: "var(--text-primary)",
+              letterSpacing: "0.03em",
+              fontFamily: "var(--font-display)",
+            }}
+          >
+            Fragrance Vault
+          </span>
+        </Link>
+
+        {/* Nav Links */}
+        <div style={{ display: "flex", gap: 4 }}>
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            const active = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 7,
+                  padding: "7px 16px",
+                  borderRadius: "var(--radius-md)",
+                  fontSize: 13,
+                  fontFamily: "var(--font-body)",
+                  textDecoration: "none",
+                  fontWeight: 500,
+                  background: active
+                    ? "var(--accent-subtle)"
+                    : "transparent",
+                  color: active
+                    ? "var(--accent-glow)"
+                    : "var(--text-secondary)",
+                  border: active
+                    ? "1px solid var(--accent-border)"
+                    : "1px solid transparent",
+                  transition: "all var(--duration-fast) var(--ease-out)",
+                }}
+              >
+                <Icon size={14} />
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
+      </div>
+
+      {/* Right: User + Logout */}
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <span
+          style={{
+            fontSize: 13,
+            color: "var(--text-secondary)",
+            fontWeight: 500,
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          {user?.username}
+        </span>
+        <button
+          onClick={handleLogout}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "6px 14px",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--border-default)",
+            background: "transparent",
+            fontSize: 12,
+            color: "var(--text-muted)",
+            fontFamily: "var(--font-body)",
+            cursor: "pointer",
+            transition: "all var(--duration-fast) var(--ease-out)",
+            fontWeight: 500,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = "var(--border-hover)";
+            e.currentTarget.style.color = "var(--text-secondary)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = "var(--border-default)";
+            e.currentTarget.style.color = "var(--text-muted)";
+          }}
+        >
+          <LogOut size={13} /> Exit
+        </button>
       </div>
     </nav>
   );

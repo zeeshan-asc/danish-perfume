@@ -1,48 +1,62 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { TextareaHTMLAttributes, forwardRef } from "react";
+import { TextareaHTMLAttributes } from "react";
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
-  label?: string;
   error?: string;
-  maxLength?: number;
-  currentLength?: number;
+  label?: string;
 }
 
-const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ label, error, maxLength, currentLength, className, ...props }, ref) => {
-    return (
-      <div className="w-full">
-        {label && (
-          <label className="block text-xs text-muted-3 uppercase tracking-wider mb-1.5 font-serif">
-            {label}
-          </label>
-        )}
-        <textarea
-          ref={ref}
-          className={cn(
-            "w-full bg-input-bg border rounded-lg px-3.5 py-2.5 text-sm text-cream font-serif",
-            "placeholder:text-muted-4 focus:outline-none focus:ring-2 focus:ring-gold/40 transition-colors",
-            "min-h-[80px] resize-y",
-            error ? "border-red-500/50" : "border-input-border",
-            className
-          )}
-          maxLength={maxLength}
-          {...props}
-        />
-        <div className="flex justify-between mt-1">
-          {error && <p className="text-red-400 text-xs font-serif">{error}</p>}
-          {maxLength !== undefined && (
-            <p className={cn("text-xs ml-auto font-serif", currentLength !== undefined && currentLength >= maxLength * 0.9 ? "text-red-400" : "text-muted-5")}>
-              {currentLength ?? 0}/{maxLength}
-            </p>
-          )}
-        </div>
-      </div>
-    );
-  }
-);
-
-Textarea.displayName = "Textarea";
-export default Textarea;
+export default function Textarea({ error, label, style, ...props }: TextareaProps) {
+  return (
+    <div>
+      {label && (
+        <label
+          style={{
+            fontSize: 12,
+            color: "var(--text-secondary)",
+            marginBottom: 5,
+            display: "block",
+            fontWeight: 500,
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          {label}
+        </label>
+      )}
+      <textarea
+        {...props}
+        style={{
+          width: "100%",
+          boxSizing: "border-box",
+          background: "rgba(255,255,255,0.04)",
+          border: error ? "1px solid var(--danger-border)" : "1px solid var(--border-default)",
+          color: "var(--text-primary)",
+          borderRadius: "var(--radius-md)",
+          padding: "10px 14px",
+          fontSize: 13,
+          fontFamily: "var(--font-body)",
+          outline: "none",
+          resize: "vertical",
+          minHeight: 80,
+          transition: "border-color var(--duration-fast) var(--ease-out)",
+          lineHeight: 1.6,
+          ...style,
+        }}
+        onFocus={(e) => {
+          if (!error) e.target.style.borderColor = "var(--accent-border)";
+          props.onFocus?.(e as any);
+        }}
+        onBlur={(e) => {
+          if (!error) e.target.style.borderColor = "var(--border-default)";
+          props.onBlur?.(e as any);
+        }}
+      />
+      {error && (
+        <p style={{ fontSize: 11, color: "var(--danger)", margin: "4px 0 0", fontFamily: "var(--font-body)" }}>
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}

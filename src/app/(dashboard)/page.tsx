@@ -5,7 +5,8 @@ import { usePerfumes } from "@/hooks/usePerfumes";
 import { IDashboardStats, Season, IPerfume } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import Link from "next/link";
-import { SprayCan as Spray } from "lucide-react";
+import { SprayCan as Spray, Star, TrendingUp, DollarSign, Package, Heart, ShoppingBag } from "lucide-react";
+import { DashboardSkeleton } from "@/components/ui/Skeleton";
 
 function computeStats(perfumes: IPerfume[]): IDashboardStats {
   const owned = perfumes.filter((p) => p.status === "Owned");
@@ -36,18 +37,19 @@ function computeStats(perfumes: IPerfume[]): IDashboardStats {
   return { totalPerfumes: perfumes.length, totalOwned: owned.length, totalWishlist: wishlist.length, totalSold: sold.length, totalValue, avgRating, topBrand, mostExpensive, highestRated, recentAdditions, brandDistribution, seasonDistribution, scentTypeDistribution, collectionGrowth };
 }
 
-const seasonColors: Record<Season, string> = { Spring: "#7ecba1", Summer: "#f9c74f", Fall: "#f4845f", Winter: "#90c2e7" };
+const seasonColors: Record<Season, string> = { Spring: "var(--season-spring)", Summer: "var(--season-summer)", Fall: "var(--season-fall)", Winter: "var(--season-winter)" };
 
-const cardStyle: React.CSSProperties = {
-  background: "#14141c",
-  border: "1px solid rgba(255,255,255,0.06)",
-  borderRadius: 10,
-  padding: "18px 20px",
+// ── Shared styles ──
+const panel: React.CSSProperties = {
+  background: "var(--bg-tertiary)",
+  border: "1px solid var(--border-subtle)",
+  borderRadius: "var(--radius-lg)",
+  padding: "22px 24px",
 };
 
-const sectionTitle: React.CSSProperties = {
-  fontSize: 11, color: "#14b8a6", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase",
-  margin: "0 0 14px", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif",
+const sectionLabel: React.CSSProperties = {
+  fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase",
+  color: "var(--accent-primary)", margin: "0 0 16px", fontFamily: "var(--font-body)",
 };
 
 export default function DashboardPage() {
@@ -55,159 +57,331 @@ export default function DashboardPage() {
   useEffect(() => { fetchPerfumes({ limit: "100", sortBy: "createdAt", sortOrder: "desc" }); }, [fetchPerfumes]);
   const stats = useMemo(() => computeStats(perfumes), [perfumes]);
 
+  if (loading && perfumes.length === 0) return <DashboardSkeleton />;
+
+  const maxBrand = Math.max(...stats.brandDistribution.map(d => d.count), 1);
+  const maxGrowth = Math.max(...stats.collectionGrowth.map(d => d.count), 1);
+
   return (
-    <div>
-      {/* ── Clean Header ── */}
-      <div style={{
-        padding: "36px 0 24px",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
+    <div style={{ paddingBottom: 60 }}>
+      {/* ═══════════════════════════════════════
+          HERO BANNER — unified stats ribbon
+          ═══════════════════════════════════════ */}
+      <div className="dashboard-hero" style={{
+        marginTop: 28,
+        padding: "32px 36px",
+        borderRadius: "var(--radius-xl)",
+        background: "linear-gradient(135deg, rgba(200,164,78,0.06) 0%, rgba(200,164,78,0.02) 40%, transparent 100%), var(--bg-tertiary)",
+        border: "1px solid rgba(200,164,78,0.12)",
+        boxShadow: "var(--shadow-glow)",
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: 24,
       }}>
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 12, marginBottom: 6 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(20,184,166,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Spray size={18} style={{ color: "#14b8a6" }} />
+        {/* Left: Welcome */}
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{
+            width: 56, height: 56, borderRadius: "var(--radius-xl)",
+            background: "var(--accent-subtle)", border: "1px solid var(--accent-border)",
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+          }}>
+            <Spray size={26} style={{ color: "var(--accent-primary)" }} />
           </div>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", color: "#14b8a6", margin: 0, textTransform: "uppercase", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>
-              Dashboard
+            <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", color: "var(--accent-primary)", margin: "0 0 4px", textTransform: "uppercase", fontFamily: "var(--font-body)" }}>
+              Fragrance Vault
             </p>
-            <h1 style={{ fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 500, color: "#f0f0f4", margin: "2px 0 0", letterSpacing: "-0.01em", lineHeight: 1.2, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>
-              Your Fragrance Vault
+            <h1 style={{ fontSize: "clamp(26px, 3.5vw, 38px)", fontWeight: 600, color: "var(--text-primary)", margin: 0, letterSpacing: "-0.01em", lineHeight: 1.15, fontFamily: "var(--font-display)" }}>
+              {stats.totalPerfumes > 0 ? `Your Collection · ${stats.totalPerfumes} Fragrances` : "Your Fragrance Vault"}
             </h1>
+            {stats.topBrand.count > 0 && (
+              <p style={{ color: "var(--text-muted)", fontSize: 13, margin: "6px 0 0", fontFamily: "var(--font-body)" }}>
+                Top brand: <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>{stats.topBrand.brand}</span>
+              </p>
+            )}
           </div>
         </div>
-        <p style={{ color: "#6b6b80", fontSize: 14, margin: "4px 0 0", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>
-          {stats.totalPerfumes} fragrances · {stats.topBrand.count > 0 ? `Top: ${stats.topBrand.brand}` : "Begin your journey"}
-        </p>
-      </div>
 
-      <div style={{ padding: "28px 0 60px" }}>
-        {/* ── Stat Cards ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12, marginBottom: 28 }}>
+        {/* Right: Inline Stats */}
+        <div style={{ display: "flex", gap: 0 }}>
           {[
-            { label: "Total", value: stats.totalPerfumes, color: "#14b8a6" },
-            { label: "Owned", value: stats.totalOwned, color: "#2dd4bf" },
-            { label: "Wishlist", value: stats.totalWishlist, color: "#60a5fa" },
-            { label: "Sold", value: stats.totalSold, color: "#f87171" },
-            { label: "Avg Rating", value: stats.avgRating > 0 ? stats.avgRating.toFixed(1) : "—", color: "#fbbf24" },
-            { label: "Total Value", value: stats.totalValue > 0 ? formatPrice(stats.totalValue) : "—", color: "#34d399" },
-          ].map((stat) => (
-            <div key={stat.label} style={cardStyle}>
-              <p style={{ fontSize: 11, color: "#6b6b80", margin: "0 0 4px", fontWeight: 500, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>{stat.label}</p>
-              <p style={{ fontSize: 22, color: stat.color, margin: 0, fontWeight: 600, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>{stat.value}</p>
+            { icon: Package, label: "Owned", value: stats.totalOwned, color: "var(--teal-primary)" },
+            { icon: Heart, label: "Wishlist", value: stats.totalWishlist, color: "var(--info)" },
+            { icon: ShoppingBag, label: "Sold", value: stats.totalSold, color: "var(--danger)" },
+            { icon: DollarSign, label: "Value", value: stats.totalValue > 0 ? formatPrice(stats.totalValue) : "—", color: "var(--success)" },
+          ].map((s, i) => (
+            <div key={s.label} style={{
+              display: "flex", flexDirection: "column", alignItems: "center",
+              padding: "0 20px",
+              borderRight: i < 3 ? "1px solid var(--border-subtle)" : "none",
+              gap: 4,
+            }}>
+              <s.icon size={16} style={{ color: s.color, opacity: 0.7 }} />
+              <span style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600, fontFamily: "var(--font-body)" }}>{s.label}</span>
+              <span style={{ fontSize: 18, fontWeight: 600, color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>{s.value}</span>
             </div>
           ))}
         </div>
+      </div>
 
-        {/* ── Charts ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 12, marginBottom: 28 }}>
-          {/* Brand Chart */}
-          <div style={cardStyle}>
-            <p style={sectionTitle}>Top Brands</p>
-            {stats.brandDistribution.slice(0, 8).map((b, i) => {
-              const max = Math.max(...stats.brandDistribution.map(d => d.count), 1);
-              return (
-                <div key={b.brand} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 5 }}>
-                  <span style={{ fontSize: 12, color: "#a0a0b4", width: 100, textAlign: "right", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.brand}</span>
-                  <div style={{ flex: 1, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.04)" }}>
-                    <div style={{ height: "100%", borderRadius: 3, width: `${(b.count / max) * 100}%`, background: "linear-gradient(90deg, rgba(20,184,166,0.3), rgba(20,184,166,0.6))", transition: "width 0.4s ease" }} />
-                  </div>
-                  <span style={{ fontSize: 11, color: "#2dd4bf", width: 20, textAlign: "right", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif", fontWeight: 500 }}>{b.count}</span>
-                </div>
-              );
-            })}
-            {stats.brandDistribution.length === 0 && <p style={{ fontSize: 12, color: "#6b6b80", textAlign: "center", padding: 16, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>Add fragrances to see brands</p>}
-          </div>
-
-          {/* Season Chart */}
-          <div style={cardStyle}>
-            <p style={sectionTitle}>Seasons</p>
-            {stats.seasonDistribution.map((s) => (
-              <div key={s.season} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 5 }}>
-                <span style={{ fontSize: 12, color: seasonColors[s.season], width: 56, fontWeight: 500, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>{s.season}</span>
-                <div style={{ flex: 1, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.04)" }}>
-                  <div style={{ height: "100%", borderRadius: 3, width: `${s.percentage}%`, background: seasonColors[s.season], opacity: 0.5 }} />
-                </div>
-                <span style={{ fontSize: 11, color: "#a0a0b4", width: 30, textAlign: "right", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>{s.percentage}%</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Scent Types */}
-          <div style={cardStyle}>
-            <p style={sectionTitle}>Scent Profiles</p>
-            {stats.scentTypeDistribution.slice(0, 8).map((t) => (
-              <div key={t.type} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                <span style={{ fontSize: 12, color: "#a0a0b4", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>{t.type}</span>
-                <span style={{ fontSize: 12, color: "#14b8a6", fontWeight: 500, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>{t.count}</span>
-              </div>
-            ))}
-            {stats.scentTypeDistribution.length === 0 && <p style={{ fontSize: 12, color: "#6b6b80", textAlign: "center", padding: 16, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>No scent profiles yet</p>}
-          </div>
-
-          {/* Collection Growth */}
-          <div style={cardStyle}>
-            <p style={sectionTitle}>Growth (6 Months)</p>
-            <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 80 }}>
-              {stats.collectionGrowth.length === 0 ? <p style={{ fontSize: 12, color: "#6b6b80", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>No data yet</p> :
-                stats.collectionGrowth.map((m, i) => {
-                  const max = Math.max(...stats.collectionGrowth.map(d => d.count), 1);
-                  return (
-                    <div key={m.month} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                      <span style={{ fontSize: 10, color: m.count > 0 ? "#2dd4bf" : "transparent", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif", fontWeight: 600 }}>{m.count || ""}</span>
-                      <div style={{ width: "100%", borderRadius: "2px 2px 0 0", height: `${Math.max((m.count / max) * 100, 4)}%`, background: m.count > 0 ? "linear-gradient(180deg, rgba(20,184,166,0.4), rgba(20,184,166,0.1))" : "rgba(255,255,255,0.03)", transition: "height 0.4s ease" }} />
-                      <span style={{ fontSize: 10, color: "#6b6b80", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>{m.month}</span>
+      {/* ═══════════════════════════════════════
+          TWO-COLUMN MAIN CONTENT
+          ═══════════════════════════════════════ */}
+      <div className="dashboard-layout" style={{
+        marginTop: 24,
+        display: "grid",
+        gridTemplateColumns: "1fr 360px",
+        gap: 24,
+      }}>
+        {/* ── LEFT COLUMN ── */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          {/* Collection Growth — large chart */}
+          <div style={panel}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <p style={{ ...sectionLabel, marginBottom: 0 }}>Collection Growth</p>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-body)", fontWeight: 500 }}>Last 6 months</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-evenly", height: 180, paddingTop: 16, gap: 12 }}>
+              {stats.collectionGrowth.length === 0 ? (
+                <p style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "var(--font-body)", alignSelf: "center" }}>No data yet — add fragrances to see growth</p>
+              ) : stats.collectionGrowth.map((m, i) => {
+                const heightPercent = Math.max((m.count / maxGrowth) * 100, 4);
+                return (
+                  <div key={m.month} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                    <span style={{
+                      fontSize: 12, fontWeight: 600, fontFamily: "var(--font-body)",
+                      color: m.count > 0 ? "var(--accent-glow)" : "transparent",
+                      transition: "color 0.3s ease",
+                    }}>
+                      {m.count || ""}
+                    </span>
+                    <div style={{
+                      width: "100%", maxWidth: 56,
+                      borderRadius: "6px 6px 0 0",
+                      height: `${heightPercent}%`,
+                      background: m.count > 0
+                        ? "linear-gradient(180deg, rgba(200,164,78,0.7), rgba(200,164,78,0.15))"
+                        : "rgba(255,255,255,0.03)",
+                      transition: "height 0.6s var(--ease-out)",
+                      position: "relative",
+                    }}>
+                      {m.count > 0 && (
+                        <div style={{
+                          position: "absolute", top: -2, left: "50%", transform: "translateX(-50%)",
+                          width: 4, height: 4, borderRadius: "50%", background: "var(--accent-glow)",
+                        }} />
+                      )}
                     </div>
-                  );
-                })}
+                    <span style={{ fontSize: 10, color: "var(--text-muted)", fontFamily: "var(--font-body)", fontWeight: 500 }}>{m.month}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Brand Rankings + Season Distribution — side by side */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+            {/* Brand Rankings */}
+            <div style={panel}>
+              <p style={sectionLabel}>Top Brands</p>
+              {stats.brandDistribution.length === 0 ? (
+                <p style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "center", padding: "20px 0", fontFamily: "var(--font-body)" }}>Add fragrances to see brands</p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {stats.brandDistribution.slice(0, 6).map((b, i) => (
+                    <div key={b.brand} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{
+                        width: 20, height: 20, borderRadius: "50%",
+                        background: i === 0 ? "var(--accent-muted)" : "rgba(255,255,255,0.04)",
+                        color: i === 0 ? "var(--accent-primary)" : "var(--text-muted)",
+                        fontSize: 10, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center",
+                        fontFamily: "var(--font-body)", flexShrink: 0,
+                      }}>{i + 1}</span>
+                      <span style={{ flex: 1, fontSize: 13, color: "var(--text-secondary)", fontFamily: "var(--font-body)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.brand}</span>
+                      <span style={{ fontSize: 12, color: "var(--accent-primary)", fontWeight: 600, fontFamily: "var(--font-body)" }}>{b.count}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Season Distribution */}
+            <div style={panel}>
+              <p style={sectionLabel}>Season Split</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {stats.seasonDistribution.map((s) => (
+                  <div key={s.season}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                      <span style={{ fontSize: 12, color: seasonColors[s.season], fontWeight: 600, fontFamily: "var(--font-body)" }}>{s.season}</span>
+                      <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-body)" }}>{s.percentage}% ({s.count})</span>
+                    </div>
+                    <div style={{ height: 6, borderRadius: 3, background: "rgba(255,255,255,0.04)", overflow: "hidden" }}>
+                      <div style={{
+                        height: "100%", borderRadius: 3,
+                        width: `${s.percentage}%`,
+                        background: `linear-gradient(90deg, ${seasonColors[s.season]}, ${seasonColors[s.season]}88)`,
+                        transition: "width 0.6s var(--ease-out)",
+                      }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* ── Recent additions ── */}
-        {stats.recentAdditions.length > 0 && (
-          <div style={{ ...cardStyle, marginBottom: 28 }}>
-            <p style={sectionTitle}>Recent Additions</p>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              {stats.recentAdditions.map((p) => (
-                <Link key={p.id} href={`/collection/${p.id}`} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)", textDecoration: "none", background: "rgba(255,255,255,0.02)", transition: "all 0.15s ease" }}>
-                  {p.imageId ? <img src={`/api/images/${p.imageId}`} alt="" width={32} height={32} style={{ borderRadius: 6, objectFit: "cover" }} /> : <Spray size={16} style={{ color: "rgba(20,184,166,0.3)" }} />}
-                  <div>
-                    <p style={{ fontSize: 12, color: "#f0f0f4", margin: 0, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif", fontWeight: 500 }}>{p.name}</p>
-                    <p style={{ fontSize: 10, color: "#6b6b80", margin: 0, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>{p.brand}</p>
+        {/* ── RIGHT COLUMN ── */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          {/* Quick Stats Card */}
+          <div style={panel}>
+            <p style={sectionLabel}>Quick Stats</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {[
+                { label: "Total Fragrances", value: stats.totalPerfumes, icon: Package, color: "var(--accent-primary)" },
+                { label: "Average Rating", value: stats.avgRating > 0 ? `${stats.avgRating.toFixed(1)} / 10` : "N/A", icon: Star, color: "var(--warning)" },
+                { label: "Total Value", value: stats.totalValue > 0 ? formatPrice(stats.totalValue) : "N/A", icon: DollarSign, color: "var(--success)" },
+                { label: "Growth (6mo)", value: stats.collectionGrowth.reduce((a, b) => a + b.count, 0) > 0 ? `+${stats.collectionGrowth.reduce((a, b) => a + b.count, 0)} new` : "No data", icon: TrendingUp, color: "var(--teal-primary)" },
+              ].map((s) => (
+                <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{
+                    width: 34, height: 34, borderRadius: "var(--radius-md)",
+                    background: `${s.color}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                  }}>
+                    <s.icon size={15} style={{ color: s.color }} />
                   </div>
-                </Link>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0, fontFamily: "var(--font-body)", fontWeight: 500 }}>{s.label}</p>
+                    <p style={{ fontSize: 15, color: "var(--text-primary)", margin: "1px 0 0", fontFamily: "var(--font-display)", fontWeight: 600 }}>{s.value}</p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
-        )}
 
-        {/* ── Empty State ── */}
-        {stats.totalPerfumes === 0 && (
-          <div style={{ textAlign: "center", padding: "60px 0" }}>
-            <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(20,184,166,0.08)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-              <Spray size={22} style={{ color: "rgba(20,184,166,0.4)" }} />
-            </div>
-            <p style={{ fontSize: 16, color: "#f0f0f4", marginBottom: 6, fontWeight: 500, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>Your vault is empty</p>
-            <p style={{ fontSize: 13, color: "#6b6b80", marginBottom: 24, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>Start building your fragrance collection</p>
-            <Link href="/collection" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 20px", borderRadius: 8, border: "1px solid rgba(20,184,166,0.3)", background: "rgba(20,184,166,0.1)", color: "#2dd4bf", fontSize: 13, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif", fontWeight: 500, textDecoration: "none" }}>
-              <Spray size={14} /> Go to Collection
-            </Link>
+          {/* Scent Profiles */}
+          <div style={panel}>
+            <p style={sectionLabel}>Scent Profiles</p>
+            {stats.scentTypeDistribution.length === 0 ? (
+              <p style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "center", padding: "20px 0", fontFamily: "var(--font-body)" }}>No scent profiles yet</p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {stats.scentTypeDistribution.slice(0, 8).map((t) => (
+                  <div key={t.type} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid var(--border-subtle)" }}>
+                    <span style={{ fontSize: 12, color: "var(--text-secondary)", fontFamily: "var(--font-body)", fontWeight: 500 }}>{t.type}</span>
+                    <span style={{
+                      fontSize: 11, fontWeight: 600, color: "var(--accent-primary)", fontFamily: "var(--font-body)",
+                      background: "var(--accent-subtle)", padding: "2px 10px", borderRadius: "var(--radius-full)", minWidth: 20, textAlign: "center",
+                    }}>{t.count}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
 
-        {/* ── Season Legend ── */}
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.04)", padding: "18px 0 0", marginTop: 20 }}>
-          <div style={{ display: "flex", gap: 20, flexWrap: "wrap", alignItems: "center" }}>
-            {Object.entries(seasonColors).map(([s, c]) => (
-              <span key={s} style={{ fontSize: 12, color: c, display: "flex", alignItems: "center", gap: 6, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif", fontWeight: 500 }}>
-                <span style={{ width: 7, height: 7, borderRadius: "50%", background: c, display: "inline-block" }} /> {s}
-              </span>
+          {/* Most Expensive / Highest Rated */}
+          {(stats.mostExpensive || stats.highestRated) && (
+            <div style={panel}>
+              <p style={sectionLabel}>Highlights</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {stats.mostExpensive && (
+                  <div>
+                    <p style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 4px", fontFamily: "var(--font-body)", fontWeight: 600 }}>Most Valuable</p>
+                    <Link href={`/collection/${stats.mostExpensive.id}`} style={{ display: "block", textDecoration: "none", transition: "opacity 0.15s ease" }}>
+                      <p style={{ fontSize: 13, color: "var(--text-primary)", margin: 0, fontFamily: "var(--font-body)", fontWeight: 600, lineHeight: 1.3 }}>{stats.mostExpensive.name}</p>
+                      <p style={{ fontSize: 12, color: "var(--accent-primary)", margin: "2px 0 0", fontFamily: "var(--font-body)", fontWeight: 500 }}>{formatPrice(stats.mostExpensive.purchase_price || 0)}</p>
+                    </Link>
+                  </div>
+                )}
+                {stats.highestRated && (
+                  <div>
+                    <p style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 4px", fontFamily: "var(--font-body)", fontWeight: 600 }}>Top Rated</p>
+                    <Link href={`/collection/${stats.highestRated.id}`} style={{ display: "block", textDecoration: "none", transition: "opacity 0.15s ease" }}>
+                      <p style={{ fontSize: 13, color: "var(--text-primary)", margin: 0, fontFamily: "var(--font-body)", fontWeight: 600, lineHeight: 1.3 }}>{stats.highestRated.name}</p>
+                      <div style={{ display: "flex", alignItems: "center", gap: 3, marginTop: 2 }}>
+                        <Star size={12} fill="var(--warning)" stroke="var(--warning)" />
+                        <span style={{ fontSize: 12, color: "var(--warning)", fontFamily: "var(--font-body)", fontWeight: 600 }}>{stats.highestRated.rating}/10</span>
+                      </div>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════
+          RECENT ADDITIONS — full width
+          ═══════════════════════════════════════ */}
+      {stats.recentAdditions.length > 0 && (
+        <div style={{ ...panel, marginTop: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <p style={{ ...sectionLabel, marginBottom: 0 }}>Recent Additions</p>
+            <Link href="/collection" style={{ fontSize: 12, color: "var(--accent-primary)", fontFamily: "var(--font-body)", fontWeight: 500, textDecoration: "none" }}>View all →</Link>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
+            {stats.recentAdditions.map((p) => (
+              <Link key={p.id} href={`/collection/${p.id}`} style={{
+                display: "flex", alignItems: "center", gap: 14, padding: "14px 18px",
+                borderRadius: "var(--radius-lg)", border: "1px solid var(--border-default)",
+                textDecoration: "none", background: "rgba(255,255,255,0.02)",
+                transition: "all var(--duration-fast) var(--ease-out)", cursor: "pointer",
+              }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent-border)"; e.currentTarget.style.background = "var(--accent-subtle)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-default)"; e.currentTarget.style.background = "rgba(255,255,255,0.02)"; }}
+              >
+                {p.imageId ? (
+                  <img src={`/api/images/${p.imageId}`} alt="" width={44} height={44} style={{ borderRadius: "var(--radius-md)", objectFit: "cover", flexShrink: 0 }} />
+                ) : (
+                  <div style={{ width: 44, height: 44, borderRadius: "var(--radius-md)", background: "var(--accent-subtle)", border: "1px solid var(--accent-border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Spray size={18} style={{ color: "var(--accent-primary)", opacity: 0.4 }} />
+                  </div>
+                )}
+                <div style={{ minWidth: 0 }}>
+                  <p style={{ fontSize: 13, color: "var(--text-primary)", margin: 0, fontFamily: "var(--font-body)", fontWeight: 600, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</p>
+                  <p style={{ fontSize: 11, color: "var(--text-muted)", margin: "1px 0 0", fontFamily: "var(--font-body)" }}>{p.brand}</p>
+                </div>
+              </Link>
             ))}
-            <span style={{ fontSize: 12, color: "#4a4a5a", marginLeft: "auto", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>
-              Click any card to expand details
-            </span>
           </div>
         </div>
+      )}
+
+      {/* ═══════════════════════════════════════
+          EMPTY STATE
+          ═══════════════════════════════════════ */}
+      {stats.totalPerfumes === 0 && (
+        <div style={{ textAlign: "center", padding: "80px 0 40px" }}>
+          <div style={{ width: 72, height: 72, borderRadius: "var(--radius-xl)", background: "var(--accent-subtle)", border: "1px solid var(--accent-border)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+            <Spray size={32} style={{ color: "var(--accent-primary)", opacity: 0.5 }} />
+          </div>
+          <p style={{ fontSize: 22, color: "var(--text-primary)", marginBottom: 8, fontWeight: 600, fontFamily: "var(--font-display)" }}>Your vault awaits</p>
+          <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 32, fontFamily: "var(--font-body)" }}>Track every bottle, note, and memory — one spray at a time.</p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/collection" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 28px", borderRadius: "var(--radius-md)", border: "1px solid var(--accent-border-strong)", background: "var(--accent-muted)", color: "var(--accent-primary)", fontSize: 14, fontFamily: "var(--font-body)", fontWeight: 600, textDecoration: "none" }}>
+              <Spray size={16} /> Start Collection
+            </Link>
+            <Link href="/collection" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 28px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-default)", background: "rgba(255,255,255,0.04)", color: "var(--text-secondary)", fontSize: 14, fontFamily: "var(--font-body)", fontWeight: 500, textDecoration: "none" }}>
+              Browse Catalog
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════
+          SEASON LEGEND FOOTER
+          ═══════════════════════════════════════ */}
+      <div style={{ borderTop: "1px solid var(--border-subtle)", padding: "20px 0 0", marginTop: 32, display: "flex", gap: 28, flexWrap: "wrap", alignItems: "center" }}>
+        {Object.entries(seasonColors).map(([s, c]) => (
+          <span key={s} style={{ fontSize: 12, color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: 7, fontFamily: "var(--font-body)", fontWeight: 500 }}>
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: c, display: "inline-block", boxShadow: `0 0 4px ${c}` }} /> {s}
+          </span>
+        ))}
+        <span style={{ fontSize: 11, color: "var(--text-dim)", marginLeft: "auto", fontFamily: "var(--font-body)" }}>
+          {stats.totalPerfumes > 0 ? `${stats.totalPerfumes} fragrances tracked` : "Begin your journey"}
+        </span>
       </div>
     </div>
   );

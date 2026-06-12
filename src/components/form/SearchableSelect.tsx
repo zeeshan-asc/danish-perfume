@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { ChevronDown, Search } from "lucide-react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { ChevronDown } from "lucide-react";
 
 interface SearchableSelectProps {
   value: string;
@@ -30,7 +30,6 @@ export default function SearchableSelect({
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Sync query when value changes externally
   useEffect(() => { setQuery(value); }, [value]);
 
   const queryLower = query.toLowerCase().trim();
@@ -42,18 +41,15 @@ export default function SearchableSelect({
     return options.filter((o) => o.toLowerCase().includes(queryLower));
   }, [options, queryLower]);
 
-  // Build visible list: filtered options + optional "Add" entry
   const visible = useMemo(() => {
-    const list: (string | { type: "add"; label: string })[] = filtered;
-    if (showAddNew) {
-      list.push({ type: "add", label: customLabel || `Add "${query.trim()}"` });
-    }
+    const list: (string | { type: "add"; label: string })[] = [...filtered];
+    if (showAddNew)
+      list.push({
+        type: "add",
+        label: customLabel || `Add "${query.trim()}"`,
+      });
     return list;
   }, [filtered, showAddNew, query, customLabel]);
-
-  const loadOptions = useCallback(() => {
-    // just a trigger for re-opening, filtering is local
-  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const q = e.target.value;
@@ -82,7 +78,6 @@ export default function SearchableSelect({
       if (e.key === "ArrowDown" || e.key === "Enter") setIsOpen(true);
       return;
     }
-
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
@@ -96,11 +91,8 @@ export default function SearchableSelect({
         e.preventDefault();
         if (highlightIdx >= 0 && highlightIdx < visible.length) {
           const item = visible[highlightIdx];
-          if (typeof item === "string") {
-            handleSelect(item);
-          } else {
-            handleAddCustom();
-          }
+          if (typeof item === "string") handleSelect(item);
+          else handleAddCustom();
         } else if (showAddNew) {
           handleAddCustom();
         } else {
@@ -113,12 +105,13 @@ export default function SearchableSelect({
     }
   };
 
-  // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (
-        dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
-        inputRef.current && !inputRef.current.contains(e.target as Node)
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(e.target as Node)
       ) {
         setIsOpen(false);
       }
@@ -131,21 +124,33 @@ export default function SearchableSelect({
     width: "100%",
     boxSizing: "border-box",
     background: "rgba(255,255,255,0.04)",
-    border: error ? "1px solid rgba(248,113,113,0.4)" : "1px solid rgba(255,255,255,0.08)",
-    color: "#f0f0f4",
-    borderRadius: 6,
-    padding: icon ? "8px 30px 8px 12px" : "8px 30px 8px 12px",
+    border: error
+      ? "1px solid var(--danger-border)"
+      : "1px solid var(--border-default)",
+    color: "var(--text-primary)",
+    borderRadius: "var(--radius-md)",
+    padding: "9px 30px 9px 12px",
     fontSize: 13,
-    fontFamily: "DM Sans, system-ui, -apple-system, sans-serif",
+    fontFamily: "var(--font-body)",
     outline: "none",
-    cursor: "default",
+    transition: "border-color var(--duration-fast) var(--ease-out)",
   };
 
   return (
     <div style={{ position: "relative" }}>
       <div style={{ position: "relative" }}>
         {icon && (
-          <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#6b6b80", pointerEvents: "none", display: "flex" }}>
+          <span
+            style={{
+              position: "absolute",
+              left: 10,
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "var(--text-muted)",
+              pointerEvents: "none",
+              display: "flex",
+            }}
+          >
             {icon}
           </span>
         )}
@@ -154,30 +159,34 @@ export default function SearchableSelect({
           type="text"
           value={query}
           onChange={handleInputChange}
-          onFocus={() => { setIsOpen(true); loadOptions(); }}
+          onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoComplete="off"
-          style={{
-            ...inputStyle,
-            paddingLeft: icon ? 32 : 12,
-          }}
+          style={{ ...inputStyle, paddingLeft: icon ? 32 : 12 }}
         />
         <ChevronDown
           size={13}
           style={{
             position: "absolute",
-            right: 10,
+            right: 12,
             top: "50%",
             transform: "translateY(-50%)",
-            color: "#6b6b80",
+            color: "var(--text-muted)",
             pointerEvents: "none",
             opacity: isOpen ? 0.5 : 0.3,
           }}
         />
       </div>
       {error && (
-        <p style={{ fontSize: 10, color: "#f87171", margin: "3px 0 0", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>
+        <p
+          style={{
+            fontSize: 10,
+            color: "var(--danger)",
+            margin: "3px 0 0",
+            fontFamily: "var(--font-body)",
+          }}
+        >
           {error}
         </p>
       )}
@@ -190,17 +199,24 @@ export default function SearchableSelect({
             top: "calc(100% + 4px)",
             left: 0,
             right: 0,
-            background: "#1a1a24",
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: 8,
+            background: "var(--bg-elevated)",
+            border: "1px solid var(--border-default)",
+            borderRadius: "var(--radius-md)",
             maxHeight: 240,
             overflowY: "auto",
             zIndex: 100,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            boxShadow: "var(--shadow-lg)",
           }}
         >
           {visible.length === 0 && !showAddNew && (
-            <div style={{ padding: "10px 14px", fontSize: 12, color: "#6b6b80", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>
+            <div
+              style={{
+                padding: "10px 14px",
+                fontSize: 12,
+                color: "var(--text-muted)",
+                fontFamily: "var(--font-body)",
+              }}
+            >
               {query.trim() ? "No matches found." : "No options available."}
             </div>
           )}
@@ -213,16 +229,20 @@ export default function SearchableSelect({
                   onClick={handleAddCustom}
                   onMouseEnter={() => setHighlightIdx(idx)}
                   style={{
-                    padding: "9px 14px",
+                    padding: "10px 14px",
                     cursor: "pointer",
-                    fontSize: 12,
-                    fontFamily: "DM Sans, system-ui, -apple-system, sans-serif",
-                    color: "#2dd4bf",
-                    borderTop: "1px solid rgba(255,255,255,0.06)",
-                    background: highlightIdx === idx ? "rgba(20,184,166,0.08)" : "transparent",
+                    fontSize: 13,
+                    fontFamily: "var(--font-body)",
+                    color: "var(--accent-primary)",
+                    borderTop: "1px solid var(--border-subtle)",
+                    background:
+                      highlightIdx === idx
+                        ? "var(--accent-subtle)"
+                        : "transparent",
                     display: "flex",
                     alignItems: "center",
-                    gap: 6,
+                    gap: 7,
+                    fontWeight: 500,
                   }}
                 >
                   + {item.label}
@@ -231,7 +251,9 @@ export default function SearchableSelect({
             }
 
             const isHighlighted = highlightIdx === idx;
-            const matchStart = queryLower ? item.toLowerCase().indexOf(queryLower) : -1;
+            const matchStart = queryLower
+              ? item.toLowerCase().indexOf(queryLower)
+              : -1;
 
             return (
               <div
@@ -239,19 +261,27 @@ export default function SearchableSelect({
                 onClick={() => handleSelect(item)}
                 onMouseEnter={() => setHighlightIdx(idx)}
                 style={{
-                  padding: "9px 14px",
+                  padding: "10px 14px",
                   cursor: "pointer",
                   fontSize: 13,
-                  fontFamily: "DM Sans, system-ui, -apple-system, sans-serif",
-                  color: "#f0f0f4",
-                  background: isHighlighted ? "rgba(255,255,255,0.06)" : "transparent",
-                  borderBottom: "1px solid rgba(255,255,255,0.03)",
+                  fontFamily: "var(--font-body)",
+                  color: "var(--text-primary)",
+                  background: isHighlighted
+                    ? "rgba(255,255,255,0.04)"
+                    : "transparent",
+                  borderBottom: "1px solid var(--border-subtle)",
+                  transition: "background var(--duration-fast) var(--ease-out)",
                 }}
               >
                 {matchStart >= 0 ? (
                   <>
                     {item.slice(0, matchStart)}
-                    <span style={{ color: "#2dd4bf", fontWeight: 600 }}>
+                    <span
+                      style={{
+                        color: "var(--accent-primary)",
+                        fontWeight: 600,
+                      }}
+                    >
                       {item.slice(matchStart, matchStart + queryLower.length)}
                     </span>
                     {item.slice(matchStart + queryLower.length)}

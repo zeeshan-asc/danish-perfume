@@ -1,20 +1,97 @@
 import LoginForm from "@/components/auth/LoginForm";
 import { SprayCan as Spray } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginPage() {
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, background: "#0b0b10" }}>
-      <div style={{ width: "100%", maxWidth: 400 }}>
-        <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 10, background: "rgba(20,184,166,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
-            <Spray size={20} style={{ color: "#14b8a6" }} />
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 20,
+        background:
+          "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(200,164,78,0.04) 0%, transparent 70%), var(--bg-deep)",
+      }}
+    >
+      <div style={{ width: "100%", maxWidth: 420 }}>
+        {/* Brand Header */}
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: "var(--radius-xl)",
+              background: "var(--accent-subtle)",
+              border: "1px solid var(--accent-border)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 16px",
+              boxShadow: "var(--shadow-glow)",
+            }}
+          >
+            <Spray size={24} style={{ color: "var(--accent-primary)" }} />
           </div>
-          <h1 style={{ fontSize: 22, fontWeight: 500, color: "#f0f0f4", margin: "0 0 4px", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>Welcome Back</h1>
-          <p style={{ fontSize: 14, color: "#6b6b80", margin: 0, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>Sign in to your Fragrance Vault</p>
+          <h1
+            style={{
+              fontSize: 26,
+              fontWeight: 600,
+              color: "var(--text-primary)",
+              margin: "0 0 6px",
+              fontFamily: "var(--font-display)",
+              letterSpacing: "0.02em",
+            }}
+          >
+            Welcome Back
+          </h1>
+          <p
+            style={{
+              fontSize: 14,
+              color: "var(--text-muted)",
+              margin: 0,
+              fontFamily: "var(--font-body)",
+              lineHeight: 1.5,
+            }}
+          >
+            Sign in to your Fragrance Vault
+          </p>
         </div>
-        <div style={{ background: "#14141c", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "24px 22px" }}>
+
+        {/* Login Card */}
+        <div
+          className="glass-elevated"
+          style={{
+            borderRadius: "var(--radius-xl)",
+            padding: "28px 26px",
+          }}
+        >
           <LoginForm />
         </div>
+
+        <p
+          style={{
+            textAlign: "center",
+            marginTop: 20,
+            fontSize: 13,
+            color: "var(--text-muted)",
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/register"
+            style={{
+              color: "var(--accent-primary)",
+              textDecoration: "none",
+              fontWeight: 500,
+              transition: "color var(--duration-fast) var(--ease-out)",
+            }}
+          >
+            Create one
+          </Link>
+        </p>
       </div>
     </div>
   );

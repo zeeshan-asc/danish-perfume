@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { IPerfume } from "@/types";
-import Badge from "@/components/ui/Badge";
 import { Pencil, Trash2, SprayCan as Spray } from "lucide-react";
 
 const seasonColors: Record<string, string> = {
-  Spring: "#7ecba1", Summer: "#f9c74f", Fall: "#f4845f", Winter: "#90c2e7",
+  Spring: "var(--season-spring)",
+  Summer: "var(--season-summer)",
+  Fall: "var(--season-fall)",
+  Winter: "var(--season-winter)",
 };
 
 interface PerfumeCardProps {
@@ -16,7 +18,12 @@ interface PerfumeCardProps {
   onDelete?: (perfume: IPerfume) => void;
 }
 
-export default function PerfumeCard({ perfume, onView, onEdit, onDelete }: PerfumeCardProps) {
+export default function PerfumeCard({
+  perfume,
+  onView,
+  onEdit,
+  onDelete,
+}: PerfumeCardProps) {
   const [imageError, setImageError] = useState(false);
 
   return (
@@ -24,20 +31,51 @@ export default function PerfumeCard({ perfume, onView, onEdit, onDelete }: Perfu
       onClick={() => onView?.(perfume)}
       className="group"
       style={{
-        background: "#14141c",
-        border: "1px solid rgba(255,255,255,0.06)",
-        borderRadius: 10,
+        background: "var(--bg-tertiary)",
+        border: "1px solid var(--border-subtle)",
+        borderRadius: "var(--radius-lg)",
         padding: "18px 20px",
         cursor: "pointer",
-        transition: "all 0.2s ease",
+        transition: "all var(--duration-normal) var(--ease-out)",
         position: "relative",
+        overflow: "hidden",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = "rgba(200,164,78,0.15)";
+        e.currentTarget.style.boxShadow = "var(--shadow-glow)";
+        e.currentTarget.style.transform = "translateY(-2px)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = "var(--border-subtle)";
+        e.currentTarget.style.boxShadow = "none";
+        e.currentTarget.style.transform = "translateY(0)";
       }}
     >
       {/* Season dots */}
       {perfume.seasons && perfume.seasons.length > 0 && (
-        <div style={{ position: "absolute", top: 14, right: 14, display: "flex", gap: 3 }}>
+        <div
+          style={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            display: "flex",
+            gap: 4,
+            zIndex: 2,
+          }}
+        >
           {perfume.seasons.map((s) => (
-            <span key={s} title={s} style={{ width: 7, height: 7, borderRadius: "50%", background: seasonColors[s] || "#555", display: "inline-block" }} />
+            <span
+              key={s}
+              title={s}
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: seasonColors[s] || "#555",
+                display: "inline-block",
+                boxShadow: `0 0 6px ${seasonColors[s] || "#555"}`,
+              }}
+            />
           ))}
         </div>
       )}
@@ -47,65 +85,196 @@ export default function PerfumeCard({ perfume, onView, onEdit, onDelete }: Perfu
         <img
           src={`/api/images/${perfume.imageId}`}
           alt={perfume.name}
-          style={{ width: "100%", height: 140, objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
-          width={300} height={140}
+          style={{
+            width: "100%",
+            height: 150,
+            objectFit: "cover",
+            borderRadius: "var(--radius-md)",
+            marginBottom: 14,
+          }}
+          width={300}
+          height={150}
           onError={() => setImageError(true)}
         />
       ) : (
-        <div style={{ width: "100%", height: 44, borderRadius: 8, marginBottom: 12, background: "rgba(255,255,255,0.02)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Spray size={18} style={{ color: "rgba(20,184,166,0.2)" }} />
+        <div
+          style={{
+            width: "100%",
+            height: 52,
+            borderRadius: "var(--radius-md)",
+            marginBottom: 14,
+            background: "var(--accent-subtle)",
+            border: "1px solid var(--accent-border)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Spray size={20} style={{ color: "var(--accent-primary)", opacity: 0.3 }} />
         </div>
       )}
 
       {/* Brand */}
-      <p style={{ fontSize: 10, color: "#14b8a6", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 3px", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>
+      <p
+        style={{
+          fontSize: 10,
+          fontWeight: 600,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "var(--accent-primary)",
+          margin: "0 0 4px",
+          fontFamily: "var(--font-body)",
+        }}
+      >
         {perfume.brand}
       </p>
 
       {/* Name */}
-      <h3 style={{ fontSize: 15, fontWeight: 500, color: "#f0f0f4", margin: "0 0 10px", lineHeight: 1.3, paddingRight: 50, fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>
+      <h3
+        style={{
+          fontSize: 16,
+          fontWeight: 600,
+          color: "var(--text-primary)",
+          margin: "0 0 12px",
+          lineHeight: 1.3,
+          paddingRight: 56,
+          fontFamily: "var(--font-display)",
+          letterSpacing: "0.01em",
+        }}
+      >
         {perfume.name}
       </h3>
 
-      {/* Info row */}
+      {/* Info rows */}
       {perfume.scent_type && (
-        <p style={{ fontSize: 12, color: "#a0a0b4", margin: "0 0 3px", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>
-          <span style={{ color: "#6b6b80" }}>Scent: </span>{perfume.scent_type}
+        <p
+          style={{
+            fontSize: 12,
+            color: "var(--text-secondary)",
+            margin: "0 0 4px",
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          <span style={{ color: "var(--text-muted)" }}>Scent: </span>
+          {perfume.scent_type}
         </p>
       )}
 
       {perfume.status && (
-        <p style={{ fontSize: 11, color: "#6b6b80", margin: "0 0 3px", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif" }}>
+        <span
+          style={{
+            display: "inline-block",
+            fontSize: 11,
+            padding: "2px 9px",
+            borderRadius: "var(--radius-sm)",
+            fontWeight: 500,
+            fontFamily: "var(--font-body)",
+            ...(perfume.status === "Owned"
+              ? {
+                  background: "var(--teal-subtle)",
+                  color: "var(--teal-primary)",
+                  border: "1px solid var(--teal-border)",
+                }
+              : perfume.status === "Sold"
+              ? {
+                  background: "var(--danger-subtle)",
+                  color: "var(--danger)",
+                  border: "1px solid var(--danger-border)",
+                }
+              : {
+                  background: "var(--info-subtle)",
+                  color: "var(--info)",
+                  border: "1px solid rgba(96,165,250,0.25)",
+                }),
+            marginTop: 6,
+          }}
+        >
           {perfume.status}
-        </p>
+        </span>
       )}
 
-      {/* Hover: click to view */}
-      <p style={{ fontSize: 10, color: "#4a4a5a", margin: "6px 0 0", fontFamily: "DM Sans, system-ui, -apple-system, sans-serif", transition: "color 0.15s" }}
-         className="group-hover:text-teal-500">
+      {/* Hover hint */}
+      <p
+        style={{
+          fontSize: 10,
+          color: "var(--text-dim)",
+          margin: "10px 0 0",
+          fontFamily: "var(--font-body)",
+          transition: "color var(--duration-fast) var(--ease-out)",
+          fontWeight: 500,
+        }}
+      >
         Click to view details →
       </p>
 
-      {/* Edit/Delete buttons */}
+      {/* Edit/Delete buttons (show on hover) */}
       <div
         style={{
-          position: "absolute", bottom: 12, right: 12,
-          display: "flex", gap: 2,
-          opacity: 0, transition: "opacity 0.15s ease",
+          position: "absolute",
+          bottom: 14,
+          right: 14,
+          display: "flex",
+          gap: 4,
+          opacity: 0,
+          transition: "opacity var(--duration-fast) var(--ease-out)",
         }}
-        className="group-hover:opacity-100"
+        className="group-hover-opacity-100"
         onClick={(e) => e.stopPropagation()}
       >
         {onEdit && (
-          <button onClick={() => onEdit(perfume)} title="Edit"
-            style={{ padding: 4, background: "none", border: "none", cursor: "pointer", color: "#6b6b80", borderRadius: 4, display: "flex" }}>
-            <Pencil size={11} />
+          <button
+            onClick={() => onEdit(perfume)}
+            title="Edit"
+            style={{
+              padding: 5,
+              background: "var(--bg-tertiary)",
+              border: "1px solid var(--border-default)",
+              cursor: "pointer",
+              color: "var(--text-muted)",
+              borderRadius: "var(--radius-sm)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all var(--duration-fast) var(--ease-out)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "var(--accent-primary)";
+              e.currentTarget.style.borderColor = "var(--accent-border)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "var(--text-muted)";
+              e.currentTarget.style.borderColor = "var(--border-default)";
+            }}
+          >
+            <Pencil size={12} />
           </button>
         )}
         {onDelete && (
-          <button onClick={() => onDelete(perfume)} title="Delete"
-            style={{ padding: 4, background: "none", border: "none", cursor: "pointer", color: "#6b6b80", borderRadius: 4, display: "flex" }}>
-            <Trash2 size={11} />
+          <button
+            onClick={() => onDelete(perfume)}
+            title="Delete"
+            style={{
+              padding: 5,
+              background: "var(--bg-tertiary)",
+              border: "1px solid var(--border-default)",
+              cursor: "pointer",
+              color: "var(--text-muted)",
+              borderRadius: "var(--radius-sm)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all var(--duration-fast) var(--ease-out)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "var(--danger)";
+              e.currentTarget.style.borderColor = "var(--danger-border)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "var(--text-muted)";
+              e.currentTarget.style.borderColor = "var(--border-default)";
+            }}
+          >
+            <Trash2 size={12} />
           </button>
         )}
       </div>

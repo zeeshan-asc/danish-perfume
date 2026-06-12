@@ -1,3 +1,17 @@
-export default function Spinner() {
-  return <div style={{ width: 28, height: 28, border: "2.5px solid rgba(20,184,166,0.15)", borderTopColor: "#14b8a6", borderRadius: "50%", animation: "spin 0.6s linear infinite" }} />;
+export default function Spinner({ size = 24 }: { size?: number }) {
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        border: "2px solid rgba(200,164,78,0.12)",
+        borderTopColor: "var(--accent-primary)",
+        borderRadius: "50%",
+        animation: "spin 0.7s linear infinite",
+        display: "inline-block",
+      }}
+      role="status"
+      aria-label="Loading"
+    />
+  );
 }

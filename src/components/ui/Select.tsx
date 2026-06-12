@@ -1,57 +1,58 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { SelectHTMLAttributes, forwardRef } from "react";
-import { ChevronDown } from "lucide-react";
+import { SelectHTMLAttributes } from "react";
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
-  label?: string;
   error?: string;
-  options: { value: string; label: string }[];
-  placeholder?: string;
+  label?: string;
 }
 
-const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, error, options, placeholder, className, ...props }, ref) => {
-    return (
-      <div className="w-full">
-        {label && (
-          <label className="block text-xs text-muted-3 uppercase tracking-wider mb-1.5 font-serif">
-            {label}
-          </label>
-        )}
-        <div className="relative">
-          <select
-            ref={ref}
-            className={cn(
-              "w-full bg-input-bg border rounded-lg px-3.5 py-2.5 text-sm text-cream font-serif",
-              "appearance-none focus:outline-none focus:ring-2 focus:ring-gold/40 transition-colors cursor-pointer",
-              error ? "border-red-500/50" : "border-input-border",
-              className
-            )}
-            {...props}
-          >
-            {placeholder && (
-              <option value="" disabled>
-                {placeholder}
-              </option>
-            )}
-            {options.map((opt) => (
-              <option key={opt.value} value={opt.value} className="bg-dark-bg">
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            size={16}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-4 pointer-events-none"
-          />
-        </div>
-        {error && <p className="text-red-400 text-xs mt-1 font-serif">{error}</p>}
-      </div>
-    );
-  }
-);
-
-Select.displayName = "Select";
-export default Select;
+export default function Select({ error, label, style, ...props }: SelectProps) {
+  return (
+    <div>
+      {label && (
+        <label
+          style={{
+            fontSize: 12,
+            color: "var(--text-secondary)",
+            marginBottom: 5,
+            display: "block",
+            fontWeight: 500,
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          {label}
+        </label>
+      )}
+      <select
+        {...props}
+        style={{
+          width: "100%",
+          boxSizing: "border-box",
+          background: "rgba(255,255,255,0.04)",
+          border: error ? "1px solid var(--danger-border)" : "1px solid var(--border-default)",
+          color: "var(--text-primary)",
+          borderRadius: "var(--radius-md)",
+          padding: "9px 14px",
+          fontSize: 13,
+          fontFamily: "var(--font-body)",
+          outline: "none",
+          cursor: "pointer",
+          transition: "border-color var(--duration-fast) var(--ease-out)",
+          appearance: "none",
+          WebkitAppearance: "none",
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23757075' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right 12px center",
+          paddingRight: 32,
+          ...style,
+        }}
+      />
+      {error && (
+        <p style={{ fontSize: 11, color: "var(--danger)", margin: "4px 0 0", fontFamily: "var(--font-body)" }}>
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}

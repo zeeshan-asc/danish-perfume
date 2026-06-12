@@ -10,22 +10,28 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) {
-      router.replace("/");
-    }
+    if (!loading && user) router.replace("/");
   }, [user, loading, router]);
 
-  if (loading) {
+  if (loading)
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0b0b10" }}>
-        <Spinner />
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "var(--bg-deep)",
+          gap: 12,
+        }}
+      >
+        <Spinner size={20} />
+        <span style={{ fontSize: 14, color: "var(--text-secondary)", fontFamily: "var(--font-body)" }}>
+          Loading...
+        </span>
       </div>
     );
-  }
 
-  if (user) {
-    return null;
-  }
-
+  if (user) return null;
   return <>{children}</>;
 }
