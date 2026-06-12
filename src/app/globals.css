@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+/* ── Design System ── */
+:root {
+  --bg-primary: #0b0b10;
+  --bg-secondary: #14141c;
+  --bg-tertiary: #1d1d28;
+  --bg-elevated: #1a1a26;
+
+  --accent: #14b8a6;
+  --accent-subtle: rgba(20, 184, 166, 0.08);
+  --accent-hover: #2dd4bf;
+  --accent-muted: rgba(20, 184, 166, 0.15);
+  --accent-border: rgba(20, 184, 166, 0.25);
+
+  --text-primary: #f0f0f4;
+  --text-secondary: #a0a0b4;
+  --text-muted: #6b6b80;
+  --text-dim: #4a4a5a;
+
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(255, 255, 255, 0.12);
+
+  --danger: #f87171;
+  --danger-subtle: rgba(248, 113, 113, 0.08);
+  --success: #34d399;
+  --success-subtle: rgba(52, 211, 153, 0.08);
+
+  /* Season colors (kept for dots/chips) */
+  --season-spring: #7ecba1;
+  --season-summer: #f9c74f;
+  --season-fall: #f4845f;
+  --season-winter: #90c2e7;
+
+  /* Fonts */
+  --font-display: "DM Serif Display", Georgia, serif;
+  --font-body: "DM Sans", system-ui, -apple-system, sans-serif;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: var(--accent-subtle);
+  color: var(--accent-hover);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+::-webkit-scrollbar-thumb { background: var(--text-dim); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── Spinner animation ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
