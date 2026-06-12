@@ -107,7 +107,7 @@ export default function CollectionPage() {
       {/* ═══════════════════════════════════════
           HERO HEADER — with collection stats
           ═══════════════════════════════════════ */}
-      <div style={{
+      <div className="collection-hero" style={{
         marginTop: 28,
         padding: "28px 32px",
         borderRadius: "var(--radius-xl)",
@@ -140,7 +140,7 @@ export default function CollectionPage() {
 
         {/* Right: Quick stats + Add */}
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <div style={{ display: "flex", gap: 0 }}>
+          <div className="collection-hero-stats" style={{ display: "flex", gap: 0 }}>
             {[
               { label: "Total", value: total, color: "var(--accent-primary)" },
               { label: "Owned", value: perfumes.filter(p => p.status === "Owned").length, color: "var(--teal-primary)" },
@@ -176,7 +176,7 @@ export default function CollectionPage() {
           ═══════════════════════════════════════ */}
       <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 12 }}>
         {/* Search + Sort row */}
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <div className="collection-toolbar" style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <div style={{ flex: 1 }}>
             <SearchBar onSearch={(q) => { setSearchQuery(q); setCurrentPage(1); }} />
           </div>
@@ -259,7 +259,7 @@ export default function CollectionPage() {
       {/* ═══════════════════════════════════════
           RESULTS ROW
           ═══════════════════════════════════════ */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: activeChips.length === 0 ? 20 : 12, marginBottom: 20 }}>
+      <div className="collection-page-info" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: activeChips.length === 0 ? 20 : 12, marginBottom: 20 }}>
         <p style={{ fontSize: 13, color: "var(--text-muted)", margin: 0, fontFamily: "var(--font-body)", fontWeight: 500 }}>
           {loading && initialLoad ? "Loading..." : `${total} fragrance${total !== 1 ? "s" : ""}${searchQuery ? ` matching "${searchQuery}"` : ""}`}
         </p>
@@ -324,7 +324,7 @@ export default function CollectionPage() {
         </div>
       ) : (
         /* ── Card Grid ── */
-        <div style={{
+        <div className="collection-grid" style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
           gap: 16,

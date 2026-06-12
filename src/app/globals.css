@@ -141,6 +141,11 @@ html, body {
   50%      { box-shadow: 0 0 40px rgba(200, 164, 78, 0.10); }
 }
 
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
 /* ── Glass Utility Classes ── */
 .glass-surface {
   background: var(--bg-glass);
@@ -177,6 +182,78 @@ html, body {
     flex-direction: column;
     align-items: flex-start !important;
   }
+}
+
+/* ── Responsive Navbar ── */
+@media (max-width: 768px) {
+  /* Show hamburger, hide desktop-only elements */
+  .navbar-hamburger {
+    display: flex !important;
+  }
+  .navbar-links {
+    display: none !important;
+  }
+  .navbar-user {
+    display: none !important;
+  }
+  .navbar-logout {
+    display: none !important;
+  }
+  .navbar-brand {
+    font-size: 13px !important;
+  }
+}
+
+/* ── Responsive Collection Page ── */
+@media (max-width: 768px) {
+  .collection-hero {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+    padding: 20px !important;
+  }
+  .collection-hero-stats {
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+  }
+  .collection-hero-stats > div {
+    border-right: none !important;
+    padding: 0 10px 0 0 !important;
+  }
+  .collection-toolbar {
+    flex-direction: column !important;
+  }
+  .collection-toolbar select {
+    width: 100% !important;
+  }
+  .collection-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .collection-hero-stats {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+  .collection-page-info {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+  }
+}
+
+/* ── Responsive Auth Pages ── */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 20px 18px !important;
+  }
+}
+
+/* ── Prevent horizontal overflow ── */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* ── Focus Visible ── */
